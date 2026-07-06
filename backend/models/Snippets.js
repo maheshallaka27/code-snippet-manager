@@ -33,6 +33,14 @@ const snippetSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    viewCount: {
+      type: Number,
+      default: 0,
+    },
+    copyCount: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,

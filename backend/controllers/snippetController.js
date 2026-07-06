@@ -276,3 +276,119 @@ export const getFavouriteSnippets = async (req, res) => {
     });
   }
 };
+
+export const togglePublicVisibility = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const snippet = await Snippet.findOne({
+      _id: id,
+      owner: req.user._id,
+    });
+    if (!snippet) {
+      return res.status(404).json({
+        message: "Snippet not found",
+      });
+    }
+    snippet.isPublic = !snippet.isPublic;
+    await snippet.save();
+    return res.status(200).json({
+      success: true,
+      message: snippet.isPublic
+        ? "Snippet is now public"
+        : "Snippet is now private",
+      snippet,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+export const getPublicSnippets = async (req, res) => {
+  try {
+    const snippets = await Snippet.find({
+      isPublic: true,
+    })
+      .populate("owner", "name email")
+      .sort({
+        createdAt: -1,
+      });
+
+    return res.status(200).json({
+      success: true,
+      count: snippets.length,
+      snippets,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+export const incrementViewCount = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const snippet = await Snippet.findOneAndUpdate(
+      {
+        _id: id,
+        isPublic: true,
+      },
+      {
+        $inc: {
+          viewCount: 1,
+        },
+      },
+      {
+        new: true,
+      },
+    );
+    if (!snippet) {
+      return res.status(404).json({
+        message: "Public snippet not found",
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      snippet,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+export const incrementCopyCount = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const snippet = await Snippet.findOneAndUpdate(
+      {
+        _id: id,
+        isPublic: true,
+      },
+      {
+        $inc: {
+          copyCount: 1,
+        },
+      },
+      {
+        new: true,
+      },
+    );
+    if (!snippet) {
+      return res.status(404).json({
+        message: "Public snippet not found",
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      snippet,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};

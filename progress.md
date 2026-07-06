@@ -172,3 +172,65 @@ Completed the core backend CRUD functionality for the AI Code Snippet Manager. U
 ## 🎯 Outcome
 
 Backend now supports advanced searching, filtering and favorite management for snippets.
+
+# Day 6 Progress - Public Snippets & Analytics
+
+## Features Implemented
+
+### 1. Public / Private Snippets
+
+- Added `togglePublicVisibility` controller.
+- Users can switch a snippet between public and private.
+- Only the owner of the snippet can change its visibility.
+- Implemented using a boolean toggle (`isPublic = !isPublic`).
+
+### 2. Get Public Snippets
+
+- Created an endpoint to fetch all public snippets.
+- Sorted snippets by newest first using `createdAt`.
+- Used Mongoose `populate()` to include owner's `name` and `email`.
+- This route is accessible without authentication.
+
+### 3. View Counter
+
+- Added `viewCount` field to the Snippet model.
+- Implemented an endpoint to increment the view count of public snippets.
+- Used MongoDB `$inc` operator for atomic updates.
+
+### 4. Copy Counter
+
+- Added `copyCount` field to the Snippet model.
+- Implemented an endpoint to increment the copy count of public snippets.
+- Used MongoDB `$inc` operator.
+
+## New Concepts Learned
+
+- Difference between `findByIdAndUpdate()` and `findOneAndUpdate()`.
+- MongoDB `$inc` operator for incrementing numeric fields.
+- Mongoose `populate()` for retrieving referenced documents.
+- Difference between public and protected API routes.
+- Why route order is important in Express (`/public` before `/:id`).
+
+## Testing
+
+Successfully tested:
+
+- Toggle Public API
+- Get Public Snippets API
+- Increment View Count API
+- Increment Copy Count API
+
+## Important Design Decision
+
+The following routes were intentionally kept **without the `protect` middleware**:
+
+- `GET /api/snippets/public`
+- `PATCH /api/snippets/:id/view`
+- `PATCH /api/snippets/:id/copy`
+
+Reason:
+These endpoints are meant for **public snippets**. Any visitor should be able to view or copy a public snippet, even without logging in. The controllers themselves ensure that only snippets with `isPublic: true` are accessible or updated.
+
+## Status
+
+✅ Day 6 Completed Successfully
