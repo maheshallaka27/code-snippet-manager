@@ -8,12 +8,13 @@ export const createSnippet = async (req, res) => {
         message: "please fill all the fields",
       });
     }
+    const normalisedTags = tags.map((tag) => tag.trim().toLowerCase());
     const snippet = await Snippet.create({
       title,
       description,
       language,
       code,
-      tags,
+      tags: normalisedTags,
       owner: req.user._id,
     });
 
@@ -124,6 +125,150 @@ export const deleteSnippet = async (req, res) => {
       success: true,
       snippet,
       message: "Snippet deleted successfully.",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+export const searchSnippet = async (req, res) => {
+  try {
+    const { q } = req.query;
+    if (!q?.trim()) {
+      return res.status(400).json({
+        message: "Search query is required",
+      });
+    }
+    const snippets = await Snippet.find({
+      owner: req.user._id,
+      $or: [
+        {
+          title: {
+            $regex: q,
+            $options: "i",
+          },
+        },
+        {
+          description: {
+            $regex: q,
+            $options: "i",
+          },
+        },
+        {
+          code: {
+            $regex: q,
+            $options: "i",
+          },
+        },
+      ],
+    });
+    return res.status(200).json({
+      success: true,
+      count: snippets.length,
+      snippets,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+export const filterLanguage = async (req, res) => {
+  try {
+    const { language } = req.query;
+    if (!language?.trim()) {
+      return res.status(400).json({
+        message: "please enter language",
+      });
+    }
+    const snippets = await Snippet.find({
+      owner: req.user._id,
+      language: {
+        $regex: language,
+        $options: "i",
+      },
+    });
+
+    return res.status(200).json({
+      success: true,
+      count: snippets.length,
+      snippets,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+export const filterTag = async (req, res) => {
+  try {
+    const { tag } = req.query;
+    if (!tag?.trim()) {
+      return res.status(400).json({
+        message: "please enter tags",
+      });
+    }
+    const snippets = await Snippet.find({
+      owner: req.user._id,
+      tags: {
+        $regex: `^${tag.trim()}$`,
+        $options: "i",
+      },
+    });
+    return res.status(200).json({
+      success: true,
+      count: snippets.length,
+      snippets,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+export const toggleFavorite = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const snippet = await Snippet.findOne({
+      _id: id,
+      owner: req.user._id,
+    });
+    if (!snippet) {
+      return res.status(404).json({
+        message: "Snippet not found",
+      });
+    }
+    snippet.favorite = !snippet.favorite;
+    await snippet.save();
+    return res.status(200).json({
+      success: true,
+      message: snippet.favorite
+        ? "Snippet added to favorites"
+        : "Snippet removed from favorites",
+      snippet,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+export const getFavouriteSnippets = async (req, res) => {
+  try {
+    const snippets = await Snippet.find({
+      owner: req.user._id,
+      favorite: true,
+    });
+    return res.status(200).json({
+      success: true,
+      count: snippets.length,
+      snippets,
     });
   } catch (error) {
     return res.status(500).json({

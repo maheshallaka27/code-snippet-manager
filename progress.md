@@ -116,3 +116,59 @@ User (1)
 ## 🎯 Outcome
 
 Completed the core backend CRUD functionality for the AI Code Snippet Manager. Users can now securely create, view, update, and delete their own code snippets.
+
+# Day 5 - Search, Filters & Favorites
+
+## ✅ Completed
+
+### Search API
+
+- Implemented search snippets endpoint
+- Added search by title, description and code
+- Used MongoDB `$regex` for partial matching
+- Used `$or` to search across multiple fields
+- Implemented case-insensitive search
+
+### Language Filter
+
+- Implemented filter by programming language
+- Used query parameters
+- Added validation
+- Implemented case-insensitive filtering
+
+### Tag Filter
+
+- Implemented filter by tags
+- Learned MongoDB `$in`
+- Normalized tags before storing
+- Implemented case-insensitive tag search
+
+### Favorite Feature
+
+- Implemented toggle favorite endpoint
+- Learned PATCH requests
+- Updated boolean values using `!`
+- Saved updated documents using `.save()`
+
+---
+
+## 📚 Concepts Learned
+
+- req.query
+- Query parameters
+- MongoDB operators
+  - $or
+  - $regex
+  - $options
+  - $in
+- PATCH requests
+- Boolean toggling
+- Data normalization
+- Search APIs
+- Filtering APIs
+
+---
+
+## 🎯 Outcome
+
+Backend now supports advanced searching, filtering and favorite management for snippets.

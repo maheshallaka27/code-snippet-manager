@@ -6,13 +6,23 @@ import {
   getSnippetById,
   updateSnippet,
   deleteSnippet,
+  searchSnippet,
+  filterLanguage,
+  filterTag,
+  toggleFavorite,
+  getFavouriteSnippets,
 } from "../controllers/snippetController.js";
 const router = express.Router();
 
-router.post("/snippets", protect, createSnippet);
-router.get("/snippets", protect, getAllSnippets);
-router.get("/snippets/:id", protect, getSnippetById);
-router.put("/snippets/:id", protect, updateSnippet);
-router.delete("/snippets/:id", protect, deleteSnippet);
+router.post("/", protect, createSnippet);
+router.get("/search", protect, searchSnippet);
+router.get("/filter/language", protect, filterLanguage);
+router.get("/filter/tag", protect, filterTag);
+router.get("/favorites", protect, getFavouriteSnippets);
+router.get("/", protect, getAllSnippets);
+router.patch("/:id/favorite", protect, toggleFavorite);
+router.get("/:id", protect, getSnippetById);
+router.put("/:id", protect, updateSnippet);
+router.delete("/:id", protect, deleteSnippet);
 
 export default router;
