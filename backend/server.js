@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import snippetRoutes from "./routes/snippetRoutes.js";
+import collectionRoutes from "./routes/collectionRoutes.js";
 dotenv.config();
 const app = express();
 
@@ -12,6 +13,8 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/snippets", snippetRoutes);
+app.use("/api/collections", collectionRoutes);
+
 const PORT = process.env.PORT || 5000;
 connectDB();
 app.listen(PORT, () => {

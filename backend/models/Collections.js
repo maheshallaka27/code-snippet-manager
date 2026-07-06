@@ -11,6 +11,16 @@ const collectionSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
+    description: {
+      type: String,
+      default: "",
+    },
+    snippets: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Snippet",
+      },
+    ],
   },
   {
     timestamps: true,
