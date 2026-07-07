@@ -1,4 +1,5 @@
 import Snippet from "../models/Snippets.js";
+import Version from "../models/Version.js";
 
 export const createSnippet = async (req, res) => {
   try {
@@ -31,11 +32,41 @@ export const createSnippet = async (req, res) => {
 };
 export const getAllSnippets = async (req, res) => {
   try {
+    const page = Math.max(1, Number(req.query.page) || 1);
+    const limit = Math.max(1, Number(req.query.limit) || 10);
+    const sort = req.query.sort || "latest";
+    const skip = (page - 1) * limit;
+    let sortOption = {};
+    if (sort === "latest") {
+      sortOption = { createdAt: -1 };
+    } else if (sort === "oldest") {
+      sortOption = { createdAt: 1 };
+    } else if (sort === "mostViewed") {
+      sortOption = { viewCount: -1 };
+    } else if (sort === "mostCopied") {
+      sortOption = { copyCount: -1 };
+    } else if (sort === "favorites") {
+      sortOption = { favorite: -1, createdAt: -1 };
+    } else {
+      sortOption = { createdAt: -1 };
+    }
+    const total = await Snippet.countDocuments({
+      owner: req.user._id,
+    });
+    const totalPages = Math.ceil(total / limit);
     const snippets = await Snippet.find({
       owner: req.user._id,
-    }).populate("owner", "name email");
+    })
+      .sort(sortOption)
+      .skip(skip)
+      .limit(limit)
+      .populate("owner", "name email");
     return res.status(200).json({
       success: true,
+      page,
+      limit,
+      totalSnippets: total,
+      totalPages,
       count: snippets.length,
       snippets,
     });
@@ -76,28 +107,45 @@ export const updateSnippet = async (req, res) => {
         message: "Please fill all required fields",
       });
     }
-    const snippet = await Snippet.findOneAndUpdate(
-      {
-        _id: id,
-        owner: req.user._id,
-      },
-      {
-        title,
-        description,
-        language,
-        code,
-        tags,
-      },
-      {
-        returnDocument: "after",
-        runValidators: true,
-      },
-    );
+
+    const snippet = await Snippet.findOne({
+      _id: id,
+      owner: req.user._id,
+    });
     if (!snippet) {
       return res.status(404).json({
         message: "Snippet not found",
       });
     }
+    const normalizedTags = tags?.map((tag) => tag.trim().toLowerCase()) || [];
+    if (
+      snippet.title === title.trim() &&
+      snippet.code === code.trim() &&
+      snippet.language === language.trim() &&
+      snippet.description === (description?.trim() || "") &&
+      JSON.stringify(snippet.tags) === JSON.stringify(normalizedTags)
+    ) {
+      return res.status(200).json({
+        success: true,
+        message: "No changes detected",
+        snippet,
+      });
+    }
+    await Version.create({
+      snippet: snippet._id,
+      title: snippet.title,
+      description: snippet.description,
+      language: snippet.language,
+      code: snippet.code,
+      tags: snippet.tags,
+    });
+    snippet.title = title.trim();
+    snippet.description = description?.trim() ?? snippet.description;
+    snippet.language = language.trim();
+    snippet.code = code.trim();
+    snippet.tags = normalizedTags;
+    await snippet.save();
+
     return res.status(200).json({
       success: true,
       snippet,

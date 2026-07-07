@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import Snippet from "./Snippets";
+import Snippet from "./Snippets.js";
 
 const versionSchema = new mongoose.Schema(
   {
@@ -8,10 +8,29 @@ const versionSchema = new mongoose.Schema(
       ref: "Snippet",
       required: true,
     },
+    title: {
+      type: String,
+      required: true,
+    },
+
+    description: {
+      type: String,
+      default: "",
+    },
+
+    language: {
+      type: String,
+      required: true,
+    },
     code: {
       type: String,
       required: true,
     },
+    tags: [
+      {
+        type: String,
+      },
+    ],
   },
   {
     timestamps: true,

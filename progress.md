@@ -234,3 +234,175 @@ These endpoints are meant for **public snippets**. Any visitor should be able to
 ## Status
 
 ✅ Day 6 Completed Successfully
+
+# Day 7 Progress - Collections Module
+
+## Features Implemented
+
+### 1. Collection Model
+
+- Created Collection schema.
+- Added `name` field.
+- Added optional `description`.
+- Linked each collection to a User using `owner`.
+- Added `snippets` array to store references to Snippet documents.
+
+### 2. Collection CRUD
+
+- Create Collection
+- Get All Collections for the logged-in user
+- Get Collection by ID
+- Update Collection
+- Delete Collection
+
+### 3. Add Snippets to Collection
+
+- Implemented endpoint to add snippets to a collection.
+- Used MongoDB `$addToSet` operator to prevent duplicate snippets.
+- Verified snippet ownership before adding it to the collection.
+
+### 4. Remove Snippets from Collection
+
+- Implemented endpoint to remove snippets from a collection.
+- Used MongoDB `$pull` operator.
+- Verified snippet ownership before removing it.
+
+### 5. Populate References
+
+- Used Mongoose `populate()` to retrieve complete snippet documents instead of ObjectIds.
+
+## New Concepts Learned
+
+- One-to-Many relationships in MongoDB.
+- Storing references using `ObjectId`.
+- MongoDB `$addToSet` operator.
+- MongoDB `$pull` operator.
+- Difference between `$push` and `$addToSet`.
+- Using `populate()` for referenced documents.
+- Why ownership should always come from `req.user` instead of `req.body`.
+- How to securely manage relationships between multiple collections.
+
+## Testing
+
+Successfully tested:
+
+- Create Collection
+- Get Collections
+- Get Collection by ID
+- Update Collection
+- Delete Collection
+- Add Snippet to Collection
+- Prevent duplicate snippets using `$addToSet`
+- Remove Snippet from Collection
+
+## Status
+
+✅ Day 7 Completed Successfully
+
+# Day 8 Progress - Version History
+
+## Features Implemented
+
+### 1. Version Model
+
+- Created Version schema.
+- Stored snapshot of snippet before every update.
+- Saved title, description, language, code and tags.
+
+### 2. Automatic Versioning
+
+- Modified Update Snippet API.
+- Stored current snippet as a version before updating.
+- Prevented unnecessary version creation when no changes were detected.
+
+### 3. Version History
+
+- Implemented API to fetch all versions of a snippet.
+- Sorted versions by latest first.
+
+### 4. Restore Version
+
+- Implemented restore endpoint.
+- Saved current snippet as a new version before restoring.
+- Restored complete snapshot including title, description, language, code and tags.
+
+## Concepts Learned
+
+- Snapshot-based versioning
+- Document restoration
+- Multi-step business logic
+- Replacing `findOneAndUpdate()` with `findOne()` + `save()`
+- Avoiding duplicate history entries
+- Secure ownership validation
+
+## Testing
+
+Successfully tested:
+
+- Automatic version creation
+- Get version history
+- Restore version
+- Version preservation during restore
+
+## Status
+
+✅ Day 8 Completed Successfully
+
+# Day 9 Progress - Dashboard & Pagination
+
+## Features Implemented
+
+### 1. Pagination
+
+- Added page and limit query parameters.
+- Implemented skip and limit.
+- Returned total pages and total snippets.
+
+### 2. Sorting
+
+Supported sorting by:
+
+- Latest
+- Oldest
+- Most Viewed
+- Most Copied
+- Favorites
+
+### 3. Dashboard Statistics
+
+Created dashboard endpoint that returns:
+
+- Total snippets
+- Favorite snippets
+- Public snippets
+- Total collections
+- Total views
+- Total copies
+
+### 4. Recent Snippets
+
+Created endpoint to fetch the latest 5 snippets for the logged-in user.
+
+## Concepts Learned
+
+- Pagination
+- Sorting with query parameters
+- Dashboard analytics
+- countDocuments()
+- select()
+- skip()
+- limit()
+- Aggregating values using loops
+
+## Testing
+
+Successfully tested:
+
+- Pagination
+- Sorting
+- Dashboard statistics
+- Recent snippets
+
+## Status
+
+✅ Day 9 Completed Successfully
