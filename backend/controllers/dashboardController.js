@@ -36,6 +36,11 @@ export const getDashboardStats = async (req, res) => {
         totalViews,
         totalCopies,
       },
+      user: {
+        name: req.user.name,
+        email: req.user.email,
+        createdAt: req.user.createdAt,
+      },
     });
   } catch (error) {
     return res.status(500).json({
