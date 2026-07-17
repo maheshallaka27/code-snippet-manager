@@ -1,6 +1,20 @@
 import { useState } from "react";
 import Editor from "@monaco-editor/react";
+import { useEffect } from "react";
 import toast from "react-hot-toast";
+import AIActionPanel from "../../components/ai/AIActionPanel";
+import AIResponseModal from "../../components/ai/AIResponseModal";
+
+import useAI from "../../hooks/useAI.js";
+
+import {
+  explainCode,
+  optimizeCode,
+  findBugs,
+  analyzeComplexity,
+  generateTestCases,
+  convertLanguage,
+} from "../../services/ai.service.js";
 import {
   Copy,
   Download,
@@ -26,11 +40,26 @@ const SnippetDetails = () => {
   const { snippet, loading, error, copyCode, refreshSnippet } = useSnippet();
 
   const [actionLoading, setActionLoading] = useState(false);
+  const { loading: aiLoading, response, execute, error: aiError } = useAI();
 
+  const [openAI, setOpenAI] = useState(false);
+
+  const [title, setTitle] = useState("");
+
+  const [targetLanguage, setTargetLanguage] = useState("python");
+  useEffect(() => {
+    if (aiError) {
+      toast.error(aiError);
+    }
+  }, [aiError]);
   if (loading) return <Loader />;
 
   if (error) return <ErrorMessage message={error} />;
-
+  if (!snippet) return null;
+  const payload = {
+    language: snippet.language,
+    code: snippet.code,
+  };
   const handleCopy = async () => {
     try {
       await copyCode();
@@ -96,6 +125,57 @@ const SnippetDetails = () => {
     } finally {
       setActionLoading(false);
     }
+  };
+  const handleExplain = async () => {
+    setTitle("Code Explanation");
+
+    setOpenAI(true);
+
+    await execute(explainCode, payload);
+  };
+
+  const handleOptimize = async () => {
+    setTitle("Optimized Code");
+
+    setOpenAI(true);
+
+    await execute(optimizeCode, payload);
+  };
+
+  const handleBug = async () => {
+    setTitle("Bug Analysis");
+
+    setOpenAI(true);
+
+    await execute(findBugs, payload);
+  };
+
+  const handleComplexity = async () => {
+    setTitle("Complexity Analysis");
+
+    setOpenAI(true);
+
+    await execute(analyzeComplexity, payload);
+  };
+
+  const handleTests = async () => {
+    setTitle("Generated Test Cases");
+
+    setOpenAI(true);
+
+    await execute(generateTestCases, payload);
+  };
+
+  const handleConvert = async () => {
+    setTitle("Converted Code");
+
+    setOpenAI(true);
+
+    await execute(convertLanguage, {
+      sourceLanguage: snippet.language,
+      targetLanguage,
+      code: snippet.code,
+    });
   };
 
   return (
@@ -164,7 +244,33 @@ const SnippetDetails = () => {
           }}
         />
       </div>
+      <div className="mt-8 space-y-4">
+        <div className="flex items-center gap-3">
+          <label className="font-semibold text-slate-700">Convert To</label>
 
+          <select
+            value={targetLanguage}
+            onChange={(e) => setTargetLanguage(e.target.value)}
+            className="rounded-lg border border-slate-300 px-3 py-2 focus:border-blue-500 focus:outline-none"
+          >
+            <option value="python">Python</option>
+            <option value="java">Java</option>
+            <option value="javascript">JavaScript</option>
+            <option value="cpp">C++</option>
+            <option value="c">C</option>
+          </select>
+        </div>
+
+        <AIActionPanel
+          loading={aiLoading}
+          onExplain={handleExplain}
+          onOptimize={handleOptimize}
+          onBug={handleBug}
+          onComplexity={handleComplexity}
+          onTests={handleTests}
+          onConvert={handleConvert}
+        />
+      </div>
       {/* Actions */}
 
       <div className="flex flex-wrap gap-4">
@@ -203,6 +309,13 @@ const SnippetDetails = () => {
           </span>
         </Button>
       </div>
+      <AIResponseModal
+        open={openAI}
+        onClose={() => setOpenAI(false)}
+        title={title}
+        response={response}
+        loading={aiLoading}
+      />
     </div>
   );
 };
